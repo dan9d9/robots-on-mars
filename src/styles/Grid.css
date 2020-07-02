@@ -1,0 +1,32 @@
+.grid {
+  display: grid;
+  gap: 2px;
+  grid-template-columns: repeat(50, 15px);
+  grid-template-rows: repeat(20, 15px);
+}
+
+.grid_square {
+  background-color: black;
+
+  border: solid 1px;
+}
+
+.dirt {
+  background-color: brown;
+}
+.grass {
+  background-color: green;
+}
+.water {
+  background-color: blue;
+}
+.cliff {
+  background-color: gray;
+}
+.void {
+  background-color: black;
+}
+.occupied {
+  border: solid 2px;
+  border-color: white;
+}
