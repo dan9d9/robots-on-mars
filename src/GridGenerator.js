@@ -36,7 +36,7 @@ const setInitialGrid = () => {
 
   for(let y=0;y<20;y++) {
     for(let x=0;x<50;x++) {
-      const pos = `[${x}, ${y}]`;
+      const pos = [x, y];
       if(gridArray.length === 0) {
         gridArray.push(new GridSquareModel(index, pos, terrainPicker(terrains, 'dirt')));
       }else {

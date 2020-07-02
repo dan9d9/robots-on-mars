@@ -22,7 +22,7 @@ const App = () => {
     setGrid([...GridGenerator]);
 
     let startPos = GridGenerator.find(gridSquare => gridSquare.isOrigin === true);
-    console.log(startPos.pos);
+    console.log(startPos.pos[0], startPos.pos[1]);
     setStartPosition([startPos.pos[0], startPos.pos[1], 'N']);
   }, []);
 
@@ -39,10 +39,13 @@ const App = () => {
     if(robotsRemaining > 0) {
       newRobot = new Robot(robotsRemaining, collectiveRobotConsciousness, startPosition);
       setRobotsRemaining(robotsRemaining => robotsRemaining -= 1);
+    }else {
+      return;
     }
 
     const returnedRobot = sendRobot([50, 20], newRobot.startPosition, instructions, newRobot, grid);
-    if(returnedRobot.status === 'lost') {collectiveRobotConsciousness.push(returnedRobot.finalPosition)}
+    if(returnedRobot.status === 'lost') {collectiveRobotConsciousness.push(`${returnedRobot.lastPosition}`)}
+    console.log('pushing: ', `${returnedRobot.lastPosition}`);
     robots.push(returnedRobot);
     console.log(returnedRobot);
   }

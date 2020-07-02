@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 import '../styles/Grid.css';
 
@@ -26,7 +26,7 @@ const Grid = props => {
     <div className='grid'>
       {props.grid.map((ele, idx) => {
         let occupied = false;
-        props.robots.forEach(robot => {
+        props.robots.filter(robot => robot.status === 'active').forEach(robot => {
           if(robot.lastPosition[0] === ele.pos[0] && robot.lastPosition[1] === ele.pos[1]) {
             occupied = true;
           }

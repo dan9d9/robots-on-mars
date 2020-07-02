@@ -1,4 +1,5 @@
 const loop = (grid = [5, 3], startPosition = [0, 0, 'E'], instructions = ['R', 'R', 'F'], robot, gridArray) => {
+  const gridSquaresArray = [...gridArray];
   const [ gridWidth, gridHeight ] = grid;
   const N = 'N', E = 'E', S = 'S', W = 'W', L = 'L', R = 'R', F = 'F';
   const newOrientationKey = {
@@ -40,13 +41,14 @@ const loop = (grid = [5, 3], startPosition = [0, 0, 'E'], instructions = ['R', '
   let newPosition;
   let count = 0;
   let lost = false;
-  const voidLocations = gridArray.filter(gridSquare => gridSquare.terrain === 'void');
-  console.log(voidLocations);
+  const voidLocations = gridSquaresArray.filter(gridSquare => gridSquare.terrain === 'void');
+  // console.log(voidLocations);
 
   while(count < instructions.length && lost === false) {
     // If current position and orientation is same as a previously deceased robot friend and your programming
     // urges you to follow in its path, rewire circuitry and ignore current order. 
-    if(robot.memory.includes(`[${currentPosition[0]}, ${currentPosition[1]}, ${currentOrientation}]`)) {
+    console.log(robot.memory, `check if ${currentPosition[0]},${currentPosition[1]},${currentOrientation}`)
+    if(robot.memory.includes(`${currentPosition[0]},${currentPosition[1]},${currentOrientation}`)) {
       if(instructions[count] === F) {
         robot.log.push('Ignore order to move forward');
         count++;
@@ -58,21 +60,30 @@ const loop = (grid = [5, 3], startPosition = [0, 0, 'E'], instructions = ['R', '
     if(instructions[count] === F) {
       newPosition = getNewPosition(currentPosition, currentOrientation);
 
-      // Oh no you charged ahead blindly into the abyss!
       if(newPosition[0] > gridWidth || 
         newPosition[0] < 0 || 
         newPosition[1] > gridHeight || 
         newPosition[1] < 0)
-      {
+        {
+        // Oh no you charged ahead blindly into the abyss!
         lost = true;
         robot.status = 'lost';
 
-        robot.log.push(`Move from [${currentPosition[0]}, ${currentPosition[1]}, ${currentOrientation}] to [${newPosition[0]}, ${newPosition[1]}, ${currentOrientation}]`);
+        robot.log.push(`[${currentPosition[0]}, ${currentPosition[1]}, ${currentOrientation}] to [${newPosition[0]}, ${newPosition[1]}, ${currentOrientation}]`);
       }else {
-        // You're safe for now
-        robot.log.push(`Move from [${currentPosition[0]}, ${currentPosition[1]}, ${currentOrientation}] to [${newPosition[0]}, ${newPosition[1]}, ${currentOrientation}]`);
+        const currentSquare = gridSquaresArray.find(gridSquare => gridSquare.pos[0] === newPosition[0] && gridSquare.pos[1] === newPosition[1]);
 
-        currentPosition = newPosition;
+        currentSquare.show = true;
+        
+        if(currentSquare.terrain === 'void') {
+          // Oh no you charged ahead blindly into a void!
+          lost = true;
+          robot.status = 'lost';
+        }else {
+          // Safe for now
+          currentPosition = newPosition; 
+        }
+        robot.log.push(`[${currentPosition[0]}, ${currentPosition[1]}, ${currentOrientation}] to [${newPosition[0]}, ${newPosition[1]}, ${currentOrientation}]`);
       }
 
     }else if(instructions[count] === L || instructions[count] === R){
@@ -80,13 +91,13 @@ const loop = (grid = [5, 3], startPosition = [0, 0, 'E'], instructions = ['R', '
 
       currentOrientation = newOrientationKey[currentOrientation][instructions[count]];
 
-      robot.log.push(`Turn from [${currentPosition[0]}, ${currentPosition[1]}, ${prevOrientation}] to [${currentPosition[0]}, ${currentPosition[1]}, ${currentOrientation}]`);
+      robot.log.push(`[${currentPosition[0]}, ${currentPosition[1]}, ${prevOrientation}] to [${currentPosition[0]}, ${currentPosition[1]}, ${currentOrientation}]`);
     }
 
     count++;
   }
 
-  robot.lastPosition = `[${currentPosition[0]}, ${currentPosition[1]}, ${currentOrientation}]`;
+  robot.lastPosition = [currentPosition[0], currentPosition[1], currentOrientation];
 
   return robot;
 }
