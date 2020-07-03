@@ -1,27 +1,36 @@
 import GridSquareModel from './GridSquareModel';
 import getSurrounding from './helpers/getSurrounding';
 
-// 50% chance for dirt because this is Mars after all
-const terrains = [
-  'dirt',
-  'grass',
-  'dirt',
-  'water',
-]
+// Base 60% chance for dirt because this is Mars after all
+const DIRT_PERCENTAGE = 60;
+const GRASS_PERCENTAGE = 30;
+const WATER_PERCENTAGE = 100 - (DIRT_PERCENTAGE + GRASS_PERCENTAGE);
+
+const terrains = Array(100).fill('').map((ele, idx) => {
+  if(idx < DIRT_PERCENTAGE) {
+    ele = 'dirt';
+  }else if(idx >= DIRT_PERCENTAGE && idx < (100 - WATER_PERCENTAGE)) {
+    ele = 'grass';
+  }else {
+    ele = 'water';
+  }
+
+  return ele;
+});
 
 const terrainPicker = (terrainsArr, previousTerrain) => {
-  const terrains = [...terrainsArr];
+  let terrains = [...terrainsArr];
 
   switch(previousTerrain) {
     case 'water':
-      terrains.splice(0, 0, 'grass', 'grass');
+      terrains.splice(0, 0, ...Array(30).fill('grass'));
       break;
     case 'grass':
-      terrains.splice(0, 0, 'dirt', 'grass');
+      terrains.splice(0, 0, ...Array(15).fill('grass'), ...Array(15).fill('dirt'));
       break;
     case 'dirt':
     default:
-      terrains.splice(0, 0, 'dirt', 'dirt');
+      terrains.splice(0, 0, ...Array(30).fill('dirt'));
       break;
   }
 
@@ -46,42 +55,67 @@ const setInitialGrid = () => {
     }
   }
 
-  let startIdx;
-  while(!startIdx || gridArray[startIdx].terrain === 'water') {
-    startIdx = Math.floor(Math.random() * 1000); 
-  }
-  gridArray[startIdx].isOrigin = true;
-  gridArray[startIdx].show = true;
+  return gridArray;
+}
+
+const createLake = (array) => {
+  const gridArray = [...array];
+
+  const waterSquares = gridArray.filter(grid => grid.terrain === 'water');
+  const randomWaterSquare = Math.floor(Math.random() * waterSquares.length);
+  const surroundingWaterSquares = getSurrounding(randomWaterSquare, 50, 1000);
+
+  gridArray[randomWaterSquare].terrain = 'water';
+  surroundingWaterSquares.forEach(square => gridArray[square].terrain = 'water');
 
   return gridArray;
 }
 
-const placeVoids = (array) => {
+const placeLavaPits = (array, lavaPits) => {
   const gridArray = [...array];
-  let totalVoids = 20;
+  let totalLavaPits = lavaPits;
 
-  while(totalVoids > 0) {
-    const newVoid = Math.floor(Math.random() * 1000);
-    const surroundingGridIndexes = getSurrounding(newVoid, 50, 1000);
+  while(totalLavaPits > 0) {
+    const newLavaPit = Math.floor(Math.random() * 1000);
+    const surroundingGridIndexes = getSurrounding(newLavaPit, 50, 1000);
 
-    if(gridArray[newVoid].terrain !== 'void' && 
-        gridArray[newVoid].isOrigin === false &&
+    if(gridArray[newLavaPit].terrain !== 'lavaPit' && 
+        gridArray[newLavaPit].isOrigin === false &&
         surroundingGridIndexes.every(gridIdx => {
-          return gridArray[gridIdx].terrain !== 'void' && gridArray[newVoid].isOrigin === false;
+          return gridArray[gridIdx].terrain !== 'lavaPit' && gridArray[newLavaPit].isOrigin === false;
         })) 
     {
-      gridArray[newVoid].terrain = 'void';
+      gridArray[newLavaPit].terrain = 'lavaPit';
       surroundingGridIndexes.forEach(gridIdx => {
         gridArray[gridIdx].terrain = 'cliff';
       });
-      totalVoids--;
+      totalLavaPits--;
     }
   }
 
   return gridArray;
 }
 
-const initialGrid = setInitialGrid();
-const gridArray = placeVoids(initialGrid);
+const placeStartPos = (array) => {
+  const gridArray = [...array];
 
-export default gridArray;
+  let startIdx;
+  while(!startIdx || 
+    gridArray[startIdx].terrain === 'water' || 
+    gridArray[startIdx].terrain === 'lavaPit') 
+  {
+    startIdx = Math.floor(Math.random() * 1000); 
+  }
+
+  gridArray[startIdx].isOrigin = true;
+  gridArray[startIdx].show = true;
+
+  return gridArray;
+}
+
+const initialGrid = setInitialGrid();
+const gridWithLava = placeLavaPits(initialGrid, 15); //(gridArray, numOfLavaPits)
+const gridWithLavaAndLake = createLake(gridWithLava);
+const finalGrid = placeStartPos(gridWithLavaAndLake);
+
+export default finalGrid;

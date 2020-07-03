@@ -26,10 +26,15 @@ const Grid = props => {
     <div className='grid'>
       {props.grid.map((ele, idx) => {
         let occupied = false;
-        props.robots.filter(robot => robot.status === 'active').forEach(robot => {
-          if(robot.lastPosition[0] === ele.pos[0] && robot.lastPosition[1] === ele.pos[1]) {
+        props.robots
+          .filter(robot => {
+            return (robot.status === 'active' || robot.status === 'stranded')})
+          .forEach(robot => {
+            if(robot.lastPosition[0] === ele.pos[0] && 
+              robot.lastPosition[1] === ele.pos[1]) 
+            {
             occupied = true;
-          }
+            }
         });
         return <GridSquare 
           key={`${ele.pos}`}

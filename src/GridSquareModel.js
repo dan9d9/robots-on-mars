@@ -1,6 +1,6 @@
 class GridSquareModel {
   isOrigin = false;
-  show = false;
+  show = true;
   terrain = 'dirt';
 
   constructor(index, pos, terrain) {
