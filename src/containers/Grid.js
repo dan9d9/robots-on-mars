@@ -4,51 +4,47 @@ import '../styles/Grid.css';
 
 import GridSquare from '../components/GridSquare';
 
+const Grid = (props) => {
+  const handleClick = (e) => {
+    let idx;
+    e.target.tagName === 'IMG'
+      ? (idx = e.target.parentNode.dataset.idx)
+      : (idx = e.target.dataset.idx);
 
-const Grid = props => {
-  const handleClick = e => {
-    const idx = e.target.dataset.idx;
-    // const x = e.target.dataset.x;
-    // const y = e.target.dataset.y;
+    const gridSquare = props.grid[idx];
+    if (gridSquare.occupants.length > 0) {
+      console.log(gridSquare.occupants);
+    }
+  };
 
-    // console.log(
-    //   'pos: ', `[${x}, ${y}]`, 
-    //   'idx: ', idx
-    // );
-    console.log(idx, props.grid[idx]);
+  const activeRobots = props.robots.filter((robot) => {
+    return robot.status === 'active' || robot.status === 'stranded';
+  });
 
-    // const tempGrid = [...grid];
-    // tempGrid[idx].toggleShow();
-    // setGrid([...tempGrid]);
-  }
-    
   return (
-    <div className='grid'>
-      {props.grid.map((ele, idx) => {
-        let occupied = false;
-        props.robots
-          .filter(robot => {
-            return (robot.status === 'active' || robot.status === 'stranded')})
-          .forEach(robot => {
-            if(robot.lastPosition[0] === ele.pos[0] && 
-              robot.lastPosition[1] === ele.pos[1]) 
-            {
-            occupied = true;
-            }
+    <div className="grid">
+      {props.grid.map((gridSquare, idx) => {
+        gridSquare.occupants.splice(0);
+
+        activeRobots.forEach((robot) => {
+          if (
+            robot.lastPosition[0] === gridSquare.pos[0] &&
+            robot.lastPosition[1] === gridSquare.pos[1]
+          ) {
+            gridSquare.occupants.push(robot);
+          }
         });
-        return <GridSquare 
-          key={`${ele.pos}`}
-          isOrigin={ele.isOrigin} 
-          pos={ele.pos}
-          show={ele.show} 
-          idx={idx} 
-          terrain={ele.terrain}
-          occupied={occupied}
-          handleClick={handleClick} 
-        />
+        return (
+          <GridSquare
+            key={`${gridSquare.pos}`}
+            gridSquare={gridSquare}
+            idx={idx}
+            handleClick={handleClick}
+          />
+        );
       })}
     </div>
-  )
-}
+  );
+};
 
 export default Grid;

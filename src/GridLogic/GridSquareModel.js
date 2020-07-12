@@ -1,7 +1,7 @@
 class GridSquareModel {
   isOrigin = false;
   show = true;
-  terrain = 'dirt';
+  occupants = [];
 
   constructor(index, pos, terrain) {
     this.pos = pos;

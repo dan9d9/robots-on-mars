@@ -3,12 +3,21 @@
   gap: 2px;
   grid-template-columns: repeat(50, 15px);
   grid-template-rows: repeat(20, 15px);
+  border: solid 3px green;
+  border-radius: 8px;
+  height: 100%;
+  align-content: center;
 }
 
 .grid_square {
   background-color: black;
 
   border: solid 1px;
+}
+
+.grid_square img {
+  height: 100%;
+  display: block;
 }
 
 .dirt {
@@ -29,4 +38,27 @@
 .occupied {
   border: solid 2px;
   border-color: white;
+}
+
+.isOrigin {
+  border-style: solid;
+  border-width: 2px;
+  border-radius: 50%;
+  animation-name: blink;
+  animation-duration: 2.5s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes blink {
+  from {
+    border-color: transparent;
+  }
+
+  50% {
+    border-color:white;
+  }
+
+  to {
+    border-color: transparent;
+  }
 }
