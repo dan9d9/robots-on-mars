@@ -10,7 +10,7 @@ const App = () => {
   const [startPosition, setStartPosition] = useState([]);
 
   const [robotsRemaining, setRobotsRemaining] = useState(10);
-  const [robots, setRobots] = useState([]);
+  const [deployedRobots, setDeployedRobots] = useState([]);
   const [lastLog, setLastLog] = useState([]);
   const [collectiveRobotConsciousness, setCollectiveRobotConsciousness] = useState([]);
 
@@ -35,34 +35,53 @@ const App = () => {
     let newRobot = createRobot(collectiveRobotConsciousness, startPosition);
     setRobotsRemaining((robotsRemaining) => (robotsRemaining -= 1));
 
-    console.log(newRobot);
-    for (let i = 0; i < instructionsArray.length; i++) {
-      const returnedRobot = executeInstruction(
-        [50, 20],
-        newRobot.lastPosition,
-        instructionsArray[i],
-        newRobot,
-        grid
-      );
+    let instructionIdx = 0;
+    function instructionLoop() {
+      let exit = false;
 
-      if (returnedRobot.status === 'lost') {
-        let tempMemory = [...collectiveRobotConsciousness];
-        tempMemory.push(`${returnedRobot.lastPosition}`);
-        setCollectiveRobotConsciousness([...tempMemory]);
-        break;
-      } else if (returnedRobot.status === 'stranded') {
-        break;
-      }
+      setTimeout(() => {
+        newRobot = executeInstruction(
+          [50, 20],
+          newRobot.lastPosition,
+          instructionsArray[instructionIdx],
+          newRobot,
+          grid
+        );
+
+        if (newRobot.status === 'lost') {
+          let tempMemory = [...collectiveRobotConsciousness];
+          tempMemory.push(`${newRobot.lastPosition}`);
+          setCollectiveRobotConsciousness([...tempMemory]);
+          exit = true;
+        } else if (newRobot.status === 'stranded') {
+          exit = true;
+        }
+        setDeployedRobots([...deployedRobots, newRobot]);
+        setLastLog(newRobot.log);
+        instructionIdx++;
+
+        if (instructionIdx < instructionsArray.length && exit === false) {
+          instructionLoop();
+        }
+      }, 500);
     }
 
-    setRobots([...robots, newRobot]);
-    setLastLog(newRobot.log);
+    instructionLoop();
   };
+
+  useEffect(() => {
+    console.log('deployed: ', deployedRobots);
+  }, [deployedRobots]);
 
   return (
     <div className="App">
       <FlexWrapper direction="column">
-        <Terminal grid={grid} startPosition={startPosition} robots={robots} lastLog={lastLog} />
+        <Terminal
+          grid={grid}
+          startPosition={startPosition}
+          deployedRobots={deployedRobots}
+          lastLog={lastLog}
+        />
         <form onSubmit={handleSubmit}>
           <input type="text" onChange={handleChange} value={instructions} />
           <button type="submit">Send</button>

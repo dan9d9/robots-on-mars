@@ -17,7 +17,7 @@ const Grid = (props) => {
     }
   };
 
-  const activeRobots = props.robots.filter((robot) => {
+  const activeRobots = props.deployedRobots.filter((robot) => {
     return robot.status === 'active' || robot.status === 'stranded';
   });
 

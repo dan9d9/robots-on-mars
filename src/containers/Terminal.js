@@ -20,7 +20,7 @@ const Terminal = (props) => {
       <Grid
         grid={props.grid}
         startPosition={props.startPosition}
-        robots={props.robots}
+        deployedRobots={props.deployedRobots}
       />
       <div className="sidebar"></div>
     </div>
